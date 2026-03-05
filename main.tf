@@ -19,7 +19,7 @@ resource "google_compute_instance" "helloworld_vm" {
     access_config {} 
   }
 
-  metadata_startup_script = "sudo apt-get update && sudo apt-get install -y default-jdk"
+  metadata_startup_script = "sudo apt-get update && sudo apt-get install -y openjdk-17-jdk"
 }
 
 output "vm_ip" {

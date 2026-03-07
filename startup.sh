@@ -1,5 +1,4 @@
 #!/bin/bash
-#Update package list and install JDK 17
 apt-get update
 apt-get install -y openjdk-17-jdk
 #Ensure the guest agent is running for SSH/SCP

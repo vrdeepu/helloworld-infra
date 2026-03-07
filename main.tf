@@ -19,17 +19,7 @@ resource "google_compute_instance" "helloworld_vm" {
     access_config {} 
   }
 
-  metadata_startup_script = <<-EOF
-#!/bin/bash
-# 1. Update package list and install JDK 17
-apt-get update
-apt-get install -y openjdk-17-jdk
-# 2. Ensure the guest agent is running for SSH/SCP
-systemctl enable google-guest-agent
-systemctl start google-guest-agent
-# 3. Grant your deployment user sudo privileges
-echo "deepu4learn ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-EOF
+  metadata_startup_script = file("${path.module}/startup.sh")
 }
 
 output "vm_ip" {

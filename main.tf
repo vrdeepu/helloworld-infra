@@ -4,9 +4,11 @@ provider "google" {
 }
 
 resource "google_compute_instance" "helloworld_vm" {
-  name         = "basic-hello-vm"
+  count = 2 #create two vms
+  name         = "basic-hello-vm-${count.index +1 }"
   machine_type = "e2-micro"
   zone         = "us-central1-a"
+  tags = ["http-server"]
 
   boot_disk {
     initialize_params {
@@ -23,5 +25,5 @@ resource "google_compute_instance" "helloworld_vm" {
 }
 
 output "vm_ip" {
-  value = google_compute_instance.helloworld_vm.network_interface[0].access_config[0].nat_ip
+  value = google_compute_instance.helloworld_vm[*].network_interface[0].access_config[0].nat_ip
 }

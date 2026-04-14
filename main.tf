@@ -40,8 +40,11 @@ resource "google_storage_bucket" "app_binaries" {
 output "bucket_name" {
   value = google_storage_bucket.app_binaries.name
 }
+data "google_compute_default_service_account" "default" {
+}
+
 resource "google_storage_bucket_iam_member" "viewer" {
   bucket = google_storage_bucket.app_binaries.name
   role   = "roles/storage.objectViewer"
-  member = "serviceAccount:861445778844-compute@developer.gserviceaccount.com"
+  member = "serviceAccount:${data.google_compute_default_service_account.default.email}"
 }

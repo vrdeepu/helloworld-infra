@@ -27,3 +27,21 @@ resource "google_compute_instance" "helloworld_vm" {
 output "vm_ip" {
   value = google_compute_instance.helloworld_vm[*].network_interface[0].access_config[0].nat_ip
 }
+# Create the Storage Bucket for our JAR files
+resource "google_storage_bucket" "app_binaries" {
+  name          = "helloworld-binaries-${project-cb063053-ca79-4fea-9b1}" # Must be unique
+  location      = "US" # Multi-region for high availability
+  force_destroy = true # Allows Terraform to delete the bucket even if it has files in it
+
+  public_access_prevention = "enforced"
+}
+
+# Output the bucket name so we can use it in Jenkins
+output "bucket_name" {
+  value = google_storage_bucket.app_binaries.name
+}
+resource "google_storage_bucket_iam_member" "viewer" {
+  bucket = google_storage_bucket.app_binaries.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:861445778844-compute@developer.gserviceaccount.com"
+}

@@ -29,7 +29,7 @@ output "vm_ip" {
 }
 # Create the Storage Bucket for our JAR files
 resource "google_storage_bucket" "app_binaries" {
-  name          = "helloworld-binaries-${project-cb063053-ca79-4fea-9b1}" # Must be unique
+  name          = "helloworld-binaries-project-cb063053-ca79-4fea-9b1" # Must be unique
   location      = "US" # Multi-region for high availability
   force_destroy = true # Allows Terraform to delete the bucket even if it has files in it
 

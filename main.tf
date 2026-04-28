@@ -20,6 +20,11 @@ resource "google_compute_instance" "helloworld_vm" {
     network = "default"
     access_config {} 
   }
+  # This "logs in" the VM so it can use the permissions you defined
+  service_account {
+    email  = data.google_compute_default_service_account.default.email
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
   metadata = {
     serial-port-enable = "1"
   }

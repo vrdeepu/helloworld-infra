@@ -20,6 +20,9 @@ resource "google_compute_instance" "helloworld_vm" {
     network = "default"
     access_config {} 
   }
+  metadata = {
+    serial-port-enable = "1"
+  }
 
   metadata_startup_script = replace(file("${path.module}/startup.sh"), "\r\n", "\n")
 }

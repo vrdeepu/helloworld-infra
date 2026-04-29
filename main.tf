@@ -2,38 +2,69 @@ provider "google" {
   project = "project-cb063053-ca79-4fea-9b1" # Replace with your actual Project ID
   region  = "us-central1"
 }
-
-resource "google_compute_instance" "helloworld_vm" {
-  count = 2 #create two vms
-  name         = "basic-hello-vm-${count.index +1 }"
+resource "google_compute_instance_template" "helloworld_template" {
+  name_prefix  = "hello-java-template-"
   machine_type = "e2-micro"
-  zone         = "us-central1-a"
-  tags = ["http-server"]
+  region       = "us-central1"
+  tags         = ["http-server"]
 
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-    }
+  disk {
+    source_image = "debian-cloud/debian-11"
+    auto_delete  = true
+    boot         = true
   }
 
   network_interface {
     network = "default"
-    access_config {} 
+    access_config {} # Gives external IPs for now
   }
-  # This "logs in" the VM so it can use the permissions you defined
-  service_account {
-    email  = data.google_compute_default_service_account.default.email
-    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-  }
+
   metadata = {
     serial-port-enable = "1"
   }
 
   metadata_startup_script = replace(file("${path.module}/startup.sh"), "\r\n", "\n")
-}
 
-output "vm_ip" {
-  value = google_compute_instance.helloworld_vm[*].network_interface[0].access_config[0].nat_ip
+  service_account {
+    email  = data.google_compute_default_service_account.default.email
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+resource "google_compute_region_health_check" "http_8081" {
+  name   = "java-app-health-check"
+  region = "us-central1"
+
+  http_health_check {
+    port = 8081
+  }
+}
+resource "google_compute_region_instance_group_manager" "helloworld_mig" {
+  name               = "helloworld-mig"
+  base_instance_name = "basic-hello-vm"
+  region             = "us-central1"
+  target_size        = 2
+
+  version {
+    instance_template = google_compute_instance_template.helloworld_template.id
+  }
+
+  # This maps the MIG to port 8081 for the Load Balancer later
+  named_port {
+    name = "http-web"
+    port = 8081
+  }
+
+  auto_healing_policies {
+    health_check      = google_compute_region_health_check.http_8081.id
+    initial_delay_sec = 300 # Wait 5 mins for Java to install before checking health
+  }
+}
+output "mig_instance_group" {
+  value = google_compute_region_instance_group_manager.helloworld_mig.instance_group
 }
 # Create the Storage Bucket for our JAR files
 resource "google_storage_bucket" "app_binaries" {

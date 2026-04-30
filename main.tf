@@ -34,9 +34,9 @@ resource "google_compute_instance_template" "helloworld_template" {
     create_before_destroy = true
   }
 }
-resource "google_compute_region_health_check" "http_8081" {
+resource "google_compute_health_check" "http_8081" {
   name   = "java-app-health-check"
-  region = "us-central1"
+  #region = "us-central1" removing  for making the health check global
 
   http_health_check {
     port = 8081
@@ -59,7 +59,7 @@ resource "google_compute_region_instance_group_manager" "helloworld_mig" {
   }
 
   auto_healing_policies {
-    health_check      = google_compute_region_health_check.http_8081.id
+    health_check      = google_compute_health_check.http_8081.id
     initial_delay_sec = 300 # Wait 5 mins for Java to install before checking health
   }
 }

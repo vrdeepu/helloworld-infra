@@ -10,7 +10,7 @@ resource "google_compute_backend_service" "helloworld_backend" {
   port_name             = "http-web" # This MUST match the named_port in your MIG
   load_balancing_scheme = "EXTERNAL_MANAGED"
   timeout_sec           = 30
-  health_checks         = [google_compute_region_health_check.java_app_health_check.id]
+  health_checks         = [google_compute_health_check.http_8081.id]
 
   backend {
     group           = google_compute_region_instance_group_manager.helloworld_mig.instance_group

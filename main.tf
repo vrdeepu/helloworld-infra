@@ -103,3 +103,18 @@ resource "google_compute_region_autoscaler" "helloworld_autoscaler" {
     }
   }
 }
+resource "google_compute_firewall" "allow_iap_ssh" {
+  name    = "allow-iap-ssh"
+  network = "default" # Ensure this matches your VPC name
+
+  direction     = "INGRESS"
+  source_ranges = ["35.235.240.0/20"] # This is fixed by Google for IAP
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  # Apply this to the same VMs using the target tag
+  target_tags = ["allow-http"]
+}

@@ -46,7 +46,7 @@ resource "google_compute_region_instance_group_manager" "helloworld_mig" {
   name               = "helloworld-mig"
   base_instance_name = "basic-hello-vm"
   region             = "us-central1"
-  target_size        = 2
+  #target_size        = 2  enabling autoscaler to  handle the number of VMs, else conflict will happen
 
   version {
     instance_template = google_compute_instance_template.helloworld_template.id

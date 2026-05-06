@@ -5,6 +5,7 @@ echo "------------------------------------------"
 
 # 1. Update and Install
 apt-get update
+apt-get install -y default-jdk stress
 apt-get install -y openjdk-17-jre curl
 
 # 2. SSH & Guest Agent Force-Start

@@ -87,3 +87,19 @@ resource "google_storage_bucket_iam_member" "viewer" {
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${data.google_compute_default_service_account.default.email}"
 }
+#autoscaler implemetation
+resource "google_compute_region_autoscaler" "helloworld_autoscaler" {
+  name   = "helloworld-autoscaler"
+  region = "us-central1"
+  target = google_compute_region_instance_group_manager.helloworld_mig.id
+
+  autoscaling_policy {
+    max_replicas    = 5   # Maximum number of VMs to scale up to
+    min_replicas    = 1   # Minimum number of VMs to keep running
+    cooldown_period = 60  # Wait 60s after scaling before making another decision
+
+    cpu_utilization {
+      target = 0.5 # Scale up when average CPU across the group hits 50%
+    }
+  }
+}
